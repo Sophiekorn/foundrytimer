@@ -73,75 +73,69 @@
     const endSound = document.getElementById('endSound');
     const body = document.body;
 
-    let audioPrimed = false;
-
+    // Prime audio for iOS/Safari
     document.addEventListener('click', () => {
-      if (!audioPrimed) {
-        warningSound.load();
-        endSound.load();
-        warningSound.play().catch(() => {});
-        endSound.play().catch(() => {});
-        warningSound.pause();
-        endSound.pause();
-        warningSound.currentTime = 0;
-        endSound.currentTime = 0;
-        audioPrimed = true;
+      try {
+        [warningSound, endSound].forEach(sound => {
+          sound.load();
+          sound.play().catch(() => {});
+          sound.pause();
+          sound.currentTime = 0;
+        });
+      } catch (err) {
+        console.error("Audio prime failed:", err);
       }
     }, { once: true });
 
     function startTimer(minutes) {
       clearInterval(countdown);
-      resetBackground();
+      body.style.background = '#000'; // reset only at start
 
-      let total = Math.round(minutes * 60);
-      let warningAt = total === 20 ? 10 : 60;
+      const totalSeconds = Math.round(minutes * 60);
+      let remaining = totalSeconds;
+      const warningAt = totalSeconds === 20 ? 10 : 60;
 
-      updateDisplay(total);
+      updateDisplay(remaining);
 
       countdown = setInterval(() => {
-        total--;
-        updateDisplay(total);
+        remaining--;
+        updateDisplay(remaining);
 
-        if (total === warningAt) {
-          warningSound.load();
-          warningSound.play().catch(console.error);
+        if (remaining === warningAt) {
           flashYellow();
+          warningSound.play().catch(console.warn);
         }
 
-        if (total === 0) {
-          endSound.load();
-          endSound.play().catch(console.error);
-          body.style.background = 'darkred';
+        if (remaining === 0) {
+          flashRed();
+          endSound.play().catch(console.warn);
           clearInterval(countdown);
         }
 
-        if (total < 0) {
+        if (remaining < 0) {
           clearInterval(countdown);
         }
       }, 1000);
     }
 
-    function updateDisplay(sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    function updateDisplay(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = seconds % 60;
+      display.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
 
     function flashYellow() {
       body.style.background = 'goldenrod';
-      setTimeout(() => {
-        body.style.background = '#000';
-      }, 1000);
     }
 
-    function resetBackground() {
-      body.style.background = '#000';
+    function flashRed() {
+      body.style.background = 'darkred';
     }
 
     function playTest(type) {
       const sound = type === 'warning' ? warningSound : endSound;
-      sound.load();
-      sound.play().catch(console.error);
+      sound.currentTime = 0;
+      sound.play().catch(console.warn);
     }
   </script>
 </body>
