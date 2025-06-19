@@ -45,24 +45,37 @@
     button:hover {
       background: #444;
     }
+    #audioGate {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    #audioGate button {
+      font-size: 2.5em;
+      padding: 1em 2em;
+    }
   </style>
 </head>
 <body>
+  <!-- SOUND UNLOCK SCREEN -->
+  <div id="audioGate">
+    <button onclick="enableAudio()">🔊 Tap to Enable Sound</button>
+  </div>
+
   <h1>Foundry Timer</h1>
   <div id="timeDisplay">--:--</div>
 
   <div class="btn-group">
     <button onclick="startTimer(0.33)">20 sec test</button>
-    <button onclick="startTimer(5)">5 min</button>
-    <button onclick="startTimer(10)">10 min</button>
+    <button onclick="startTimer(5)">5 min</button>
+    <button onclick="startTimer(10)">10 min</button>
   </div>
 
-  <div class="btn-group">
-    <button onclick="playTest('warning')">Test Warning Sound</button>
-    <button onclick="playTest('end')">Test End Sound</button>
-  </div>
-
-  <!-- Compatible MP3 sounds -->
+  <!-- AUDIO FILES (hosted on Mixkit for reliability) -->
   <audio id="warningSound" preload="auto">
     <source src="https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3" type="audio/mpeg">
   </audio>
@@ -77,22 +90,18 @@
     const endSound = document.getElementById('endSound');
     const body = document.body;
 
-    let audioPrimed = false;
+    function enableAudio() {
+      // Play + pause each sound to unlock browser restrictions
+      warningSound.play().catch(() => {});
+      endSound.play().catch(() => {});
+      warningSound.pause();
+      endSound.pause();
+      warningSound.currentTime = 0;
+      endSound.currentTime = 0;
 
-    document.addEventListener('click', () => {
-      if (!audioPrimed) {
-        warningSound.load();
-        endSound.load();
-        warningSound.play().catch(() => {});
-        endSound.play().catch(() => {});
-        warningSound.pause();
-        endSound.pause();
-        warningSound.currentTime = 0;
-        endSound.currentTime = 0;
-        audioPrimed = true;
-        console.log("🔊 Audio primed");
-      }
-    }, { once: true });
+      // Hide overlay
+      document.getElementById('audioGate').style.display = 'none';
+    }
 
     function startTimer(minutes) {
       clearInterval(countdown);
@@ -108,13 +117,11 @@
         updateDisplay(total);
 
         if (total === warningAt) {
-          warningSound.load();
           warningSound.play().catch(console.error);
           flashYellow();
         }
 
         if (total === 0) {
-          endSound.load();
           endSound.play().catch(console.error);
           body.style.background = 'darkred';
           clearInterval(countdown);
@@ -141,12 +148,6 @@
 
     function resetBackground() {
       body.style.background = '#000';
-    }
-
-    function playTest(type) {
-      const sound = type === 'warning' ? warningSound : endSound;
-      sound.load();
-      sound.play().catch(console.error);
     }
   </script>
 </body>
