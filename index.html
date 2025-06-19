@@ -64,7 +64,7 @@
   <div id="timeDisplay" aria-label="Timer Display">--:--</div>
 
   <div class="btn-group">
-    <button onclick="startTimer(0.33)" aria-label="Start 20 second timer">20 sec</button>
+    <button onclick="startTimer(0.33, true)" aria-label="Start 20 second timer">20 sec</button>
     <button onclick="startTimer(2)" aria-label="Start 2 minute timer">2 min</button>
     <button onclick="startTimer(5)" aria-label="Start 5 minute timer">5 min</button>
     <button onclick="startTimer(10)" aria-label="Start 10 minute timer">10 min</button>
@@ -91,7 +91,7 @@
     const display = document.getElementById('timeDisplay');
     const bell = document.getElementById('bellSound');
 
-    function startTimer(minutes) {
+    function startTimer(minutes, isShort = false) {
       clearInterval(countdown);
       let total = Math.round(minutes * 60);
       updateDisplay(total);
@@ -100,7 +100,16 @@
       countdown = setInterval(() => {
         total--;
         updateDisplay(total);
-        if (total === 60 || total === 0) bell.play();
+        if (isShort && total === 10) {
+          triggerVisual('warning');
+          bell.play();
+        } else if (!isShort && total === 60) {
+          triggerVisual('warning');
+          bell.play();
+        } else if (total === 0) {
+          triggerVisual('final');
+          bell.play();
+        }
         if (total <= 0) clearInterval(countdown);
       }, 1000);
     }
@@ -120,11 +129,12 @@
 
     function triggerTest(type) {
       bell.play();
-      if (type === 'warning') {
-        document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--flash-warning');
-      } else if (type === 'final') {
-        document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--flash-final');
-      }
+      triggerVisual(type);
+    }
+
+    function triggerVisual(type) {
+      const color = type === 'warning' ? '--flash-warning' : '--flash-final';
+      document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue(color);
       setTimeout(() => {
         document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-default');
       }, 500);
@@ -132,4 +142,3 @@
   </script>
 </body>
 </html>
- 
