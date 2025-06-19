@@ -50,15 +50,25 @@
 <body>
   <h1>Foundry Timer</h1>
   <div id="timeDisplay">--:--</div>
+
   <div class="btn-group">
     <button onclick="startTimer(0.33)">20 sec test</button>
     <button onclick="startTimer(5)">5 min</button>
     <button onclick="startTimer(10)">10 min</button>
   </div>
 
-  <!-- Sounds -->
-  <audio id="warningSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
-  <audio id="endSound" src="https://actions.google.com/sounds/v1/alarms/temple_bell.ogg" preload="auto"></audio>
+  <div class="btn-group">
+    <button onclick="playTest('warning')">Test Warning Sound</button>
+    <button onclick="playTest('end')">Test End Sound</button>
+  </div>
+
+  <!-- Use MP3 for broader compatibility -->
+  <audio id="warningSound" preload="auto">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.mp3" type="audio/mpeg" />
+  </audio>
+  <audio id="endSound" preload="auto">
+    <source src="https://actions.google.com/sounds/v1/alarms/temple_bell.mp3" type="audio/mpeg" />
+  </audio>
 
   <script>
     let countdown;
@@ -67,22 +77,27 @@
     const endSound = document.getElementById('endSound');
     const body = document.body;
 
-    // Unlock audio on first interaction
+    let audioPrimed = false;
+
     document.addEventListener('click', () => {
-      warningSound.play().catch(() => {});
-      endSound.play().catch(() => {});
-      warningSound.pause();
-      endSound.pause();
-      warningSound.currentTime = 0;
-      endSound.currentTime = 0;
-    }, { once: true });
+      if (!audioPrimed) {
+        warningSound.play().catch(() => {});
+        endSound.play().catch(() => {});
+        warningSound.pause();
+        endSound.pause();
+        warningSound.currentTime = 0;
+        endSound.currentTime = 0;
+        audioPrimed = true;
+        console.log("🔊 Audio primed");
+      }
+    });
 
     function startTimer(minutes) {
       clearInterval(countdown);
       resetBackground();
 
       let total = Math.round(minutes * 60);
-      let warningAt = total === 20 ? 10 : 60; // 10s if 20-sec timer, otherwise 60s (1 min)
+      let warningAt = total === 20 ? 10 : 60;
 
       updateDisplay(total);
 
@@ -123,7 +138,14 @@
     function resetBackground() {
       body.style.background = '#000';
     }
+
+    function playTest(type) {
+      if (type === 'warning') {
+        warningSound.play().catch(console.error);
+      } else {
+        endSound.play().catch(console.error);
+      }
+    }
   </script>
 </body>
 </html>
-
