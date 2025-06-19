@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Foundry Timer v2</title>
+  <title>Monad Foundation Timer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -24,7 +24,7 @@
       font-size: 8em;
       margin: 0.2em;
     }
-    .btn-group, .custom-time {
+    .btn-group, .custom-time, .test-buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
@@ -54,7 +54,7 @@
   </style>
 </head>
 <body>
-  <h1>Foundry Timer</h1>
+  <h1>Monad Foundation Timer</h1>
   <div id="timeDisplay">--:--</div>
 
   <div class="btn-group">
@@ -70,6 +70,11 @@
     <label for="customMin">Custom:</label>
     <input type="number" id="customMin" min="1" placeholder="min" />
     <button onclick="startCustomTimer()">Start</button>
+  </div>
+
+  <div class="test-buttons">
+    <button onclick="bell.play()">Test Warning Bell (1 min)</button>
+    <button onclick="bell.play()">Test Final Bell (End)</button>
   </div>
 
   <audio id="bellSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
