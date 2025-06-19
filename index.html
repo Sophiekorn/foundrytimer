@@ -15,6 +15,7 @@
       background: #000;
       color: #f7f7f7;
       font-family: sans-serif;
+      transition: background 0.5s ease;
     }
     h1 {
       font-size: 3em;
@@ -51,28 +52,57 @@
     <button onclick="startTimer(5)">5 min</button>
     <button onclick="startTimer(10)">10 min</button>
   </div>
-  <audio id="bellSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+
+  <!-- Sounds -->
+  <audio id="warningSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+  <audio id="endSound" src="https://actions.google.com/sounds/v1/alarms/temple_bell.ogg" preload="auto"></audio>
+
   <script>
     let countdown;
     const display = document.getElementById('timeDisplay');
-    const bell = document.getElementById('bellSound');
+    const warningSound = document.getElementById('warningSound');
+    const endSound = document.getElementById('endSound');
+    const body = document.body;
 
     function startTimer(minutes) {
       clearInterval(countdown);
+      resetBackground();
+
       let total = minutes * 60;
       updateDisplay(total);
+
       countdown = setInterval(() => {
         total--;
         updateDisplay(total);
-        if (total === 60 || total === 0) bell.play();
-        if (total <= 0) clearInterval(countdown);
+
+        if (total === 60) {
+          warningSound.play();
+          flashYellow();
+        }
+
+        if (total === 0) {
+          endSound.play();
+          body.style.background = 'darkred';
+          clearInterval(countdown);
+        }
       }, 1000);
     }
 
     function updateDisplay(sec) {
       const m = Math.floor(sec / 60);
       const s = sec % 60;
-      display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function flashYellow() {
+      body.style.background = 'goldenrod';
+      setTimeout(() => {
+        body.style.background = '#000';
+      }, 1000);
+    }
+
+    function resetBackground() {
+      body.style.background = '#000';
     }
   </script>
 </body>
