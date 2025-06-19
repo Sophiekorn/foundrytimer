@@ -45,27 +45,9 @@
     button:hover {
       background: #444;
     }
-    #audioGate {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-    }
-    #audioGate button {
-      font-size: 2.5em;
-      padding: 1em 2em;
-    }
   </style>
 </head>
 <body>
-  <!-- SOUND UNLOCK SCREEN -->
-  <div id="audioGate">
-    <button onclick="enableAudio()">🔊 Tap to Enable Sound</button>
-  </div>
-
   <h1>Foundry Timer</h1>
   <div id="timeDisplay">--:--</div>
 
@@ -75,77 +57,71 @@
     <button onclick="startTimer(10)">10 min</button>
   </div>
 
-  <!-- AUDIO FILES (hosted on Mixkit for reliability) -->
-  <audio id="warningSound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="endSound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
-  </audio>
-
+  <!-- ✅ Howler.js Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-<script>
-  let countdown;
-  const display = document.getElementById('timeDisplay');
-  const body = document.body;
 
-  const warningSound = new Howl({
-    src: ['https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3'],
-    volume: 1.0
-  });
+  <script>
+    let countdown;
+    const display = document.getElementById('timeDisplay');
+    const body = document.body;
 
-  const endSound = new Howl({
-    src: ['https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3'],
-    volume: 1.0
-  });
+    // ✅ Replace unreliable <audio> tags with Howler
+    const warningSound = new Howl({
+      src: ['https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3'],
+      volume: 1.0
+    });
 
-  function startTimer(minutes) {
-    clearInterval(countdown);
-    resetBackground();
+    const endSound = new Howl({
+      src: ['https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3'],
+      volume: 1.0
+    });
 
-    let total = Math.round(minutes * 60);
-    let warningAt = total === 20 ? 10 : 60;
+    function startTimer(minutes) {
+      clearInterval(countdown);
+      resetBackground();
 
-    updateDisplay(total);
+      let total = Math.round(minutes * 60);
+      let warningAt = total === 20 ? 10 : 60;
 
-    countdown = setInterval(() => {
-      total--;
       updateDisplay(total);
 
-      if (total === warningAt) {
-        warningSound.play();
-        flashYellow();
-      }
+      countdown = setInterval(() => {
+        total--;
+        updateDisplay(total);
 
-      if (total === 0) {
-        endSound.play();
-        body.style.background = 'darkred';
-        clearInterval(countdown);
-      }
+        if (total === warningAt) {
+          warningSound.play();
+          flashYellow();
+        }
 
-      if (total < 0) {
-        clearInterval(countdown);
-      }
-    }, 1000);
-  }
+        if (total === 0) {
+          endSound.play();
+          body.style.background = 'darkred';
+          clearInterval(countdown);
+        }
 
-  function updateDisplay(sec) {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  }
+        if (total < 0) {
+          clearInterval(countdown);
+        }
+      }, 1000);
+    }
 
-  function flashYellow() {
-    body.style.background = 'goldenrod';
-    setTimeout(() => {
+    function updateDisplay(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function flashYellow() {
+      body.style.background = 'goldenrod';
+      setTimeout(() => {
+        body.style.background = '#000';
+      }, 1000);
+    }
+
+    function resetBackground() {
       body.style.background = '#000';
-    }, 1000);
-  }
-
-  function resetBackground() {
-    body.style.background = '#000';
-  }
-</script>
-
+    }
+  </script>
 </body>
 </html>
