@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Foundry Timer</title>
+  <title>Foundry Timer v2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
@@ -15,7 +15,6 @@
       background: #000;
       color: #f7f7f7;
       font-family: sans-serif;
-      transition: background 0.5s ease;
     }
     h1 {
       font-size: 3em;
@@ -25,18 +24,18 @@
       font-size: 8em;
       margin: 0.2em;
     }
-    .btn-group {
+    .btn-group, .custom-time {
       display: flex;
       flex-wrap: wrap;
+      justify-content: center;
       gap: 1em;
       margin-top: 1em;
-      justify-content: center;
     }
     button {
       background: #222;
       color: #f7f7f7;
-      font-size: 2em;
-      padding: 0.8em 1.6em;
+      font-size: 1.5em;
+      padding: 0.6em 1.2em;
       border: 2px solid #f7f7f7;
       border-radius: 10px;
       cursor: pointer;
@@ -45,6 +44,13 @@
     button:hover {
       background: #444;
     }
+    input[type="number"] {
+      font-size: 1.5em;
+      padding: 0.5em;
+      width: 100px;
+      margin-left: 10px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -52,90 +58,50 @@
   <div id="timeDisplay">--:--</div>
 
   <div class="btn-group">
-    <button onclick="startTimer(0.33)">20 sec test</button>
-    <button onclick="startTimer(5)">5 min</button>
-    <button onclick="startTimer(10)">10 min</button>
+    <button onclick="startTimer(2)">2 min</button>
+    <button onclick="startTimer(5)">5 min</button>
+    <button onclick="startTimer(10)">10 min</button>
+    <button onclick="startTimer(15)">15 min</button>
+    <button onclick="startTimer(20)">20 min</button>
+    <button onclick="startTimer(30)">30 min</button>
   </div>
 
-  <div class="btn-group">
-    <button onclick="playTest('warning')">🔊 Test Warning Sound</button>
-    <button onclick="playTest('end')">🔔 Test End Sound</button>
+  <div class="custom-time">
+    <label for="customMin">Custom:</label>
+    <input type="number" id="customMin" min="1" placeholder="min" />
+    <button onclick="startCustomTimer()">Start</button>
   </div>
 
-  <!-- Self-hosted sounds -->
-  <audio id="warningSound" src="ding-101492.mp3" preload="auto"></audio>
-  <audio id="endSound" src="ding-dong-81717.mp3" preload="auto"></audio>
+  <audio id="bellSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
 
   <script>
     let countdown;
     const display = document.getElementById('timeDisplay');
-    const warningSound = document.getElementById('warningSound');
-    const endSound = document.getElementById('endSound');
-    const body = document.body;
-
-    // Prime audio for iOS/Safari
-    document.addEventListener('click', () => {
-      try {
-        [warningSound, endSound].forEach(sound => {
-          sound.load();
-          sound.play().catch(() => {});
-          sound.pause();
-          sound.currentTime = 0;
-        });
-      } catch (err) {
-        console.error("Audio prime failed:", err);
-      }
-    }, { once: true });
+    const bell = document.getElementById('bellSound');
 
     function startTimer(minutes) {
       clearInterval(countdown);
-      body.style.background = '#000'; // reset only at start
-
-      const totalSeconds = Math.round(minutes * 60);
-      let remaining = totalSeconds;
-      const warningAt = totalSeconds === 20 ? 10 : 60;
-
-      updateDisplay(remaining);
-
+      let total = minutes * 60;
+      updateDisplay(total);
       countdown = setInterval(() => {
-        remaining--;
-        updateDisplay(remaining);
-
-        if (remaining === warningAt) {
-          flashYellow();
-          warningSound.play().catch(console.warn);
-        }
-
-        if (remaining === 0) {
-          flashRed();
-          endSound.play().catch(console.warn);
-          clearInterval(countdown);
-        }
-
-        if (remaining < 0) {
-          clearInterval(countdown);
-        }
+        total--;
+        updateDisplay(total);
+        if (total === 60 || total === 0) bell.play();
+        if (total <= 0) clearInterval(countdown);
       }, 1000);
     }
 
-    function updateDisplay(seconds) {
-      const min = Math.floor(seconds / 60);
-      const sec = seconds % 60;
-      display.textContent = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    function startCustomTimer() {
+      const min = parseInt(document.getElementById('customMin').value);
+      if (!isNaN(min) && min > 0) {
+        startTimer(min);
+      }
     }
 
-    function flashYellow() {
-      body.style.background = 'goldenrod';
-    }
-
-    function flashRed() {
-      body.style.background = 'darkred';
-    }
-
-    function playTest(type) {
-      const sound = type === 'warning' ? warningSound : endSound;
-      sound.currentTime = 0;
-      sound.play().catch(console.warn);
+    function updateDisplay(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }
   </script>
 </body>
