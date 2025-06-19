@@ -53,28 +53,41 @@
 
   <div class="btn-group">
     <button onclick="startTimer(0.33)">20 sec test</button>
-    <button onclick="startTimer(5)">5 min</button>
-    <button onclick="startTimer(10)">10 min</button>
+    <button onclick="startTimer(5)">5 min</button>
+    <button onclick="startTimer(10)">10 min</button>
   </div>
 
-  <!-- ✅ Howler.js Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+  <div class="btn-group">
+    <button onclick="playTest('warning')">Test Warning Sound</button>
+    <button onclick="playTest('end')">Test End Sound</button>
+  </div>
+
+  <!-- Self-hosted sounds -->
+  <audio id="warningSound" src="ding-101492.mp3" preload="auto"></audio>
+  <audio id="endSound" src="ding-dong-81717.mp3" preload="auto"></audio>
 
   <script>
     let countdown;
     const display = document.getElementById('timeDisplay');
+    const warningSound = document.getElementById('warningSound');
+    const endSound = document.getElementById('endSound');
     const body = document.body;
 
-    // ✅ Replace unreliable <audio> tags with Howler
-    const warningSound = new Howl({
-      src: ['https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3'],
-      volume: 1.0
-    });
+    let audioPrimed = false;
 
-    const endSound = new Howl({
-      src: ['https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3'],
-      volume: 1.0
-    });
+    document.addEventListener('click', () => {
+      if (!audioPrimed) {
+        warningSound.load();
+        endSound.load();
+        warningSound.play().catch(() => {});
+        endSound.play().catch(() => {});
+        warningSound.pause();
+        endSound.pause();
+        warningSound.currentTime = 0;
+        endSound.currentTime = 0;
+        audioPrimed = true;
+      }
+    }, { once: true });
 
     function startTimer(minutes) {
       clearInterval(countdown);
@@ -90,12 +103,14 @@
         updateDisplay(total);
 
         if (total === warningAt) {
-          warningSound.play();
+          warningSound.load();
+          warningSound.play().catch(console.error);
           flashYellow();
         }
 
         if (total === 0) {
-          endSound.play();
+          endSound.load();
+          endSound.play().catch(console.error);
           body.style.background = 'darkred';
           clearInterval(countdown);
         }
@@ -121,6 +136,12 @@
 
     function resetBackground() {
       body.style.background = '#000';
+    }
+
+    function playTest(type) {
+      const sound = type === 'warning' ? warningSound : endSound;
+      sound.load();
+      sound.play().catch(console.error);
     }
   </script>
 </body>
