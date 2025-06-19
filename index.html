@@ -84,13 +84,14 @@
     <button onclick="triggerTest('final')" aria-label="Test final bell">Test Final Bell (End)</button>
   </div>
 
-  <audio id="bellSound" src="ding-dong-81717.mp3" preload="auto"></audio>
-
+  <audio id="bellWarning" src="ding-101492.mp3" preload="auto"></audio>
+  <audio id="bellFinal" src="ding-dong-81717.mp3" preload="auto"></audio>
 
   <script>
     let countdown;
     const display = document.getElementById('timeDisplay');
-    const bell = document.getElementById('bellSound');
+    const bellWarning = document.getElementById('bellWarning');
+    const bellFinal = document.getElementById('bellFinal');
 
     function startTimer(minutes, isShort = false) {
       clearInterval(countdown);
@@ -103,13 +104,13 @@
         updateDisplay(total);
         if (isShort && total === 10) {
           triggerVisual('warning');
-          bell.play();
+          bellWarning.play();
         } else if (!isShort && total === 60) {
           triggerVisual('warning');
-          bell.play();
+          bellWarning.play();
         } else if (total === 0) {
           triggerVisual('final');
-          bell.play();
+          bellFinal.play();
         }
         if (total <= 0) clearInterval(countdown);
       }, 1000);
@@ -129,7 +130,11 @@
     }
 
     function triggerTest(type) {
-      bell.play();
+      if (type === 'warning') {
+        bellWarning.play();
+      } else if (type === 'final') {
+        bellFinal.play();
+      }
       triggerVisual(type);
     }
 
