@@ -5,6 +5,11 @@
   <title>Monad Foundation Timer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    :root {
+      --bg-default: #000;
+      --flash-warning: yellow;
+      --flash-final: red;
+    }
     body {
       margin: 0;
       height: 100vh;
@@ -12,9 +17,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #000;
+      background: var(--bg-default);
       color: #f7f7f7;
       font-family: sans-serif;
+      transition: background-color 0.3s;
     }
     h1 {
       font-size: 3em;
@@ -55,26 +61,27 @@
 </head>
 <body>
   <h1>Monad Foundation Timer</h1>
-  <div id="timeDisplay">--:--</div>
+  <div id="timeDisplay" aria-label="Timer Display">--:--</div>
 
   <div class="btn-group">
-    <button onclick="startTimer(2)">2 min</button>
-    <button onclick="startTimer(5)">5 min</button>
-    <button onclick="startTimer(10)">10 min</button>
-    <button onclick="startTimer(15)">15 min</button>
-    <button onclick="startTimer(20)">20 min</button>
-    <button onclick="startTimer(30)">30 min</button>
+    <button onclick="startTimer(0.33)" aria-label="Start 20 second timer">20 sec</button>
+    <button onclick="startTimer(2)" aria-label="Start 2 minute timer">2 min</button>
+    <button onclick="startTimer(5)" aria-label="Start 5 minute timer">5 min</button>
+    <button onclick="startTimer(10)" aria-label="Start 10 minute timer">10 min</button>
+    <button onclick="startTimer(15)" aria-label="Start 15 minute timer">15 min</button>
+    <button onclick="startTimer(20)" aria-label="Start 20 minute timer">20 min</button>
+    <button onclick="startTimer(30)" aria-label="Start 30 minute timer">30 min</button>
   </div>
 
   <div class="custom-time">
     <label for="customMin">Custom:</label>
-    <input type="number" id="customMin" min="1" placeholder="min" />
-    <button onclick="startCustomTimer()">Start</button>
+    <input type="number" id="customMin" min="1" placeholder="min" aria-label="Custom timer input in minutes" />
+    <button onclick="startCustomTimer()" aria-label="Start custom timer">Start</button>
   </div>
 
   <div class="test-buttons">
-    <button onclick="bell.play()">Test Warning Bell (1 min)</button>
-    <button onclick="bell.play()">Test Final Bell (End)</button>
+    <button onclick="triggerTest('warning')" aria-label="Test warning bell">Test Warning Bell (1 min)</button>
+    <button onclick="triggerTest('final')" aria-label="Test final bell">Test Final Bell (End)</button>
   </div>
 
   <audio id="bellSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
@@ -86,8 +93,10 @@
 
     function startTimer(minutes) {
       clearInterval(countdown);
-      let total = minutes * 60;
+      let total = Math.round(minutes * 60);
       updateDisplay(total);
+      document.body.style.backgroundColor = 'green';
+      setTimeout(() => document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-default'), 300);
       countdown = setInterval(() => {
         total--;
         updateDisplay(total);
@@ -107,6 +116,18 @@
       const m = Math.floor(sec / 60);
       const s = sec % 60;
       display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+
+    function triggerTest(type) {
+      bell.play();
+      if (type === 'warning') {
+        document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--flash-warning');
+      } else if (type === 'final') {
+        document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--flash-final');
+      }
+      setTimeout(() => {
+        document.body.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-default');
+      }, 500);
     }
   </script>
 </body>
