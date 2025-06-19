@@ -58,4 +58,96 @@
   </div>
 
   <div class="btn-group">
-    <button onclick="playTest('w
+    <button onclick="playTest('warning')">Test Warning Sound</button>
+    <button onclick="playTest('end')">Test End Sound</button>
+  </div>
+
+  <!-- Compatible MP3 sounds -->
+  <audio id="warningSound" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-classic-alarm-995.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="endSound" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-game-emergency-alarm-1000.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let countdown;
+    const display = document.getElementById('timeDisplay');
+    const warningSound = document.getElementById('warningSound');
+    const endSound = document.getElementById('endSound');
+    const body = document.body;
+
+    let audioPrimed = false;
+
+    document.addEventListener('click', () => {
+      if (!audioPrimed) {
+        warningSound.load();
+        endSound.load();
+        warningSound.play().catch(() => {});
+        endSound.play().catch(() => {});
+        warningSound.pause();
+        endSound.pause();
+        warningSound.currentTime = 0;
+        endSound.currentTime = 0;
+        audioPrimed = true;
+        console.log("🔊 Audio primed");
+      }
+    }, { once: true });
+
+    function startTimer(minutes) {
+      clearInterval(countdown);
+      resetBackground();
+
+      let total = Math.round(minutes * 60);
+      let warningAt = total === 20 ? 10 : 60;
+
+      updateDisplay(total);
+
+      countdown = setInterval(() => {
+        total--;
+        updateDisplay(total);
+
+        if (total === warningAt) {
+          warningSound.load();
+          warningSound.play().catch(console.error);
+          flashYellow();
+        }
+
+        if (total === 0) {
+          endSound.load();
+          endSound.play().catch(console.error);
+          body.style.background = 'darkred';
+          clearInterval(countdown);
+        }
+
+        if (total < 0) {
+          clearInterval(countdown);
+        }
+      }, 1000);
+    }
+
+    function updateDisplay(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      display.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function flashYellow() {
+      body.style.background = 'goldenrod';
+      setTimeout(() => {
+        body.style.background = '#000';
+      }, 1000);
+    }
+
+    function resetBackground() {
+      body.style.background = '#000';
+    }
+
+    function playTest(type) {
+      const sound = type === 'warning' ? warningSound : endSound;
+      sound.load();
+      sound.play().catch(console.error);
+    }
+  </script>
+</body>
+</html>
