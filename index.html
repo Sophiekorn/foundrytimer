@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Foundry Timer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      color: #f7f7f7;
+      font-family: sans-serif;
+    }
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.5em;
+    }
+    #timeDisplay {
+      font-size: 8em;
+      margin: 0.2em;
+    }
+    .btn-group {
+      display: flex;
+      gap: 1em;
+      margin-top: 1em;
+    }
+    button {
+      background: #222;
+      color: #f7f7f7;
+      font-size: 2em;
+      padding: 0.8em 1.6em;
+      border: 2px solid #f7f7f7;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #444;
+    }
+  </style>
+</head>
+<body>
+  <h1>Foundry Timer</h1>
+  <div id="timeDisplay">--:--</div>
+  <div class="btn-group">
+    <button onclick="startTimer(5)">5 min</button>
+    <button onclick="startTimer(10)">10 min</button>
+  </div>
+  <audio id="bellSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" preload="auto"></audio>
+  <script>
+    let countdown;
+    const display = document.getElementById('timeDisplay');
+    const bell = document.getElementById('bellSound');
+
+    function startTimer(minutes) {
+      clearInterval(countdown);
+      let total = minutes * 60;
+      updateDisplay(total);
+      countdown = setInterval(() => {
+        total--;
+        updateDisplay(total);
+        if (total === 60 || total === 0) bell.play();
+        if (total <= 0) clearInterval(countdown);
+      }, 1000);
+    }
+
+    function updateDisplay(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+  </script>
+</body>
+</html>
